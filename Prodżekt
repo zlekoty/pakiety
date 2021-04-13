@@ -1,10 +1,24 @@
-print("siema")
 
-print("co tam")
+jelenie_pocz=20 # ilosc poczatkowa ofiar
+wilki_pocz=10 # ilosc poczatkowa drapieżników
+narodziny_jelenie=0.9 # współczynnik urodzeń ofiar
+szansa_upolowania=0.1 # szansa na upolowanie
+wsp_wilkow=0.5  # współczynnik urodzeń drapieżników
+wsp_umier_wilkow=0.6 # współczynnik umieralnosci drapieżników
 
-sialalalav2
+import math
+import matplotlib.pyplot as plt
+import random as r
 
-można zmieniać tutaj o
-lqlql
-
-kolejna zmiana
+ilosc_jeleni=[jelenie_pocz]
+ilosc_wilkow=[wilki_pocz]
+for i in range(0,999):
+    ilosc_jeleni.append(10)
+    ilosc_wilkow.append(10)
+for i in range(1,1000):
+  
+    ilosc_jeleni[i] = ilosc_jeleni[i-1] + ((ilosc_jeleni[i-1]*narodziny_jelenie)-(szansa_upolowania*ilosc_wilkow[i-1]*ilosc_jeleni[i-1]))*0.04
+    ilosc_wilkow[i] = ilosc_wilkow[i-1] + (-wsp_umier_wilkow*ilosc_wilkow[i-1]+(szansa_upolowania*wsp_wilkow*ilosc_jeleni[i-1]*ilosc_wilkow[i-1]))*0.04
+    
+plt.plot(ilosc_jeleni,'r')
+plt.plot(ilosc_wilkow,'g')
