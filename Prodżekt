@@ -22,3 +22,4 @@ for i in range(1,1000):
     
 plt.plot(ilosc_jeleni,'r')
 plt.plot(ilosc_wilkow,'g')
+plt.show()
