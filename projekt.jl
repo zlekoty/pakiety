@@ -1,5 +1,4 @@
 using Plots
-using Random
 
 jelenie_pocz=20.0 # ilosc poczatkowa ofiar
 wilki_pocz=10.0 # ilosc poczatkowa drapieżników
