@@ -18,3 +18,5 @@ for i in 2:1000
     W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilkow*J[i-1]*W[i-1]) - wsp_umier_wilkow*W[i-1])*0.04
 end
     
+plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
+plot!(W, label = "ilość wilków")
