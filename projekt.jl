@@ -49,7 +49,7 @@ function anim_narodziny_jeleni()
     """
     global J
     global W
-    an = @animate for k in 1:500 # k/100 jest współczynnikiem urodzin jeleni
+    an = @animate for k in 1:500 # k/250 jest współczynnikiem urodzin jeleni
         zmiana(k/250, 0.05)
         plot(J, title = "Wykres w zależności od współczynnika narodzin jeleni", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
@@ -66,7 +66,7 @@ function anim_szansa_upolowania()
     """
     global J
     global W
-    an = @animate for k in 1:500 # k/100 jest szansą upolowania jelenia przez wilka
+    an = @animate for k in 1:500 # k/1000 jest szansą upolowania jelenia przez wilka
         zmiana(0.9, k/1000)
         plot(J, title = "Wykres w zależności od szansy upolowania", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
