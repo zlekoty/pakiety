@@ -45,11 +45,11 @@ end
 function anim_narodziny_jeleni()
     """
     Funkcja tworzy animację zmieniających się populcji w zależności od współczynnika narodzin jeleni.
-    Oscyluje on między wartością 0.2 a 2.
+    Oscyluje on między wartością 0.04 a 2.
     """
     global J
     global W
-    an = @animate for k in 1:500 # k/250 jest współczynnikiem urodzin jeleni
+    an = @animate for k in 1:500 # k/100 jest współczynnikiem urodzin jeleni
         zmiana(k/250, 0.05)
         plot(J, title = "Wykres w zależności od współczynnika narodzin jeleni", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
@@ -62,11 +62,11 @@ end
 function anim_szansa_upolowania()
     """
     Funkcja tworzy animację zmieniających się populcji w zależności od szansy upolowania jelenia przez wilka.
-    Oscyluje on między wartością ~ 0.003 a ~ 0.49.
+    Oscyluje on między wartością 0.001 a 0.5.
     """
     global J
     global W
-    an = @animate for k in 1:500 # k/1000 jest szansą upolowania jelenia przez wilka
+    an = @animate for k in 1:500 # k/100 jest szansą upolowania jelenia przez wilka
         zmiana(0.9, k/1000)
         plot(J, title = "Wykres w zależności od szansy upolowania", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
@@ -74,4 +74,18 @@ function anim_szansa_upolowania()
         W = stan_początkowy_wilków(10.0)
     end
     gif(an, fps = 10)
+end
+
+function wykres(narodziny_jeleni, szansa_upolowania) # Przykładowo: wykres(0.9, 0.05)
+    """
+    Funckja rysuje wykres pokazujący zależność między ilością jeleni a ilością wilków,
+    w zależności od zadanych parametrów.
+    """
+    global J
+    global W
+    J = stan_początkowy_jeleni(20.0)
+    W = stan_początkowy_wilków(10.0)
+    zmiana(narodziny_jeleni, szansa_upolowania)
+    plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
+    plot!(W, label = "ilość wilków")
 end
