@@ -93,7 +93,7 @@ end
 
 function zmiana_losowa(narodziny_jeleni, szansa_upolowania, X = 1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
-    Funkcja modyfikuje "losowo" kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni oraz wilków.
 
     Argumenty
@@ -140,7 +140,7 @@ end
 function zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania, szansa = 0.1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
     Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
-    populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 25 jednostek czasu.
+    populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 50 jednostek czasu.
 
     Argumenty
     ---------
@@ -177,8 +177,8 @@ end
 
 function zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania, X = 1, szansa = 0.1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
-    Funkcja modyfikuje "losowo" kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
-    populacji jeleni oraz wilków.
+    Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 50 jednostek czasu.
 
     Argumenty
     ---------
@@ -245,5 +245,3 @@ function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kat
     plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
     plot!(W, label = "ilość wilków")
 end
-
-        
