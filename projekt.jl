@@ -1,35 +1,24 @@
 using Plots
+using Random
 
-function stan_początkowy_jeleni(jelenie_pocz)
+function stan_początkowy(ilość_pocz)
     """
-    Funkcja tworzy macierz, której pierwszym elementem jest początkowa ilość jeleni,
-    a kolejnymi zera. Kolejne elementy będą reprezentować ilość jeleni w danym czasie.
+    Funkcja tworzy macierz, której pierwszym elementem jest początkowa populacja zwierząt,
+    a kolejnymi zera. Kolejne elementy będą reprezentować populację w danym czasie.
 
     Argumenty
     ---------
-    jelenie_pocz(Float): początkowa ilość jeleni
+    ilość_pocz(Float): początkowa populacja zwierząt
     """
-    J = zeros(24999) 
-    J[1] = jelenie_pocz
-    return J
+    P = zeros(24999) 
+    P[1] = ilość_pocz
+    return P
 end
 
-function stan_początkowy_wilków(wilki_pocz)
-    """
-    Funkcja tworzy macierz, której pierwszym elementem jest początkowa ilość wilków,
-    a kolejnymi zera. Kolejne elementy będą reprezentować ilość wilków w danym czasie.
+J = stan_początkowy(20.0) #macierz jeleni
+W = stan_początkowy(20.0) #macierz wilków
 
-    Argumenty
-    ---------
-    wilki_pocz(Float): początkowa ilość wilków
-    """
-    W = zeros(24999)
-    W[1] = wilki_pocz
-    return W
-end
-
-J = stan_początkowy_jeleni(20.0)
-W = stan_początkowy_wilków(10.0)
+#Symulacja bez uwzględnienia elementu losowego
 
 function zmiana(narodziny_jeleni, szansa_upolowania, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
@@ -46,7 +35,7 @@ function zmiana(narodziny_jeleni, szansa_upolowania, pojemność_środowiskowa =
     """
     global J
     global W 
-    for i in 2:24999  
+    for i in 2:24999 
         J[i] = J[i-1] + ((J[i-1]*narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
         W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - wsp_umier_wilków*W[i-1])*0.002
     end
@@ -60,8 +49,8 @@ function anim_narodziny_jeleni()
     global J
     global W
     an = @animate for k in 1:500 # k/250 jest współczynnikiem urodzin jeleni
-        J = stan_początkowy_jeleni(20.0)
-        W = stan_początkowy_wilków(10.0)
+        J = stan_początkowy(20.0)
+        W = stan_początkowy(20.0)
         zmiana(k/250, 0.05)
         plot(J, title = "Wykres w zależności od współczynnika narodzin jeleni", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków")   
@@ -77,8 +66,8 @@ function anim_szansa_upolowania()
     global J
     global W
     an = @animate for k in 1:500 # k/1000 jest szansą upolowania jelenia przez wilka
-        J = stan_początkowy_jeleni(20.0)
-        W = stan_początkowy_wilków(10.0)
+        J = stan_początkowy(20.0)
+        W = stan_początkowy(20.0)
         zmiana(0.9, k/1000)
         plot(J, title = "Wykres w zależności od szansy upolowania", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
@@ -87,7 +76,148 @@ function anim_szansa_upolowania()
     gif(an, fps = 10)
 end
 
-function wykres(narodziny_jeleni, szansa_upolowania) # Przykładowo: wykres(0.9, 0.05)
+#Symulacja z uwzględnieniem elementu losowego
+
+function losowa_zmiana_parametru(parametr, X)
+    """
+    Zwraca wartość, która jest losowo zmodyfikowaną watością parametru. Im większa wartość X, 
+    tym wahania będą niższe. Jednocześnie X nie powinien być mniejszy od 1.
+    """
+    if X >= 1
+        zakres_zmiany = LinRange(-parametr/X, parametr/X, 100)
+        losowy_wybór = rand(zakres_zmiany)
+        nowa_wartość = parametr + losowy_wybór
+        return nowa_wartość
+    end
+end
+
+function zmiana_losowa(narodziny_jeleni, szansa_upolowania, X = 1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
+    """
+    Funkcja modyfikuje "losowo" kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    populacji jeleni oraz wilków.
+
+    Argumenty
+    ---------
+    narodziny_jeleni(Float): tempo rozmnażania się jeleni
+    szansa_upolowania(Float): szansa na upolowanie jelenia przez wilka
+    X(Float): współczynnik losowości zmiany (powinien być większy od 1, a im większy, tym losowość mniejsza)
+    pojemność_środowiskowa(Float): maksymalna ilość jeleni w środowisku
+    narodziny_wilków(Float): tempo rozmnażania się wilków
+    wsp_umier_wilków(Float): tempo umieralności wilków
+    """
+    global J
+    global W
+    J = stan_początkowy(20.0)
+    W = stan_początkowy(20.0)   
+    for i in 2:24999  
+        los_narodziny_jeleni = losowa_zmiana_parametru(narodziny_jeleni, X)
+        los_szansa_upolowania = losowa_zmiana_parametru(szansa_upolowania, X)
+        los_narodziny_wilków = losowa_zmiana_parametru(narodziny_wilków, X)
+        los_wsp_umier_wilków = losowa_zmiana_parametru(wsp_umier_wilków, X)  
+        J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+    end
+end
+
+#Symulacja z uwzględnieniem kataklizmów
+
+function kataklizm(szansa)
+    """
+    Funkcja zwraca "susza", jeśli kataklizm nastąpił lub "false", jeśli nie nastąpił.
+
+    Argumenty
+    ---------
+    szansa(Float): procentowa szansa na wystąpienie kataklizmu
+    """
+    czy_kataklizm = rand()*100
+    if szansa >= czy_kataklizm
+        return "susza"
+    else
+        return false
+    end
+end
+
+function zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania, szansa = 0.1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
+    """
+    Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 25 jednostek czasu.
+
+    Argumenty
+    ---------
+    narodziny_jeleni(Float): tempo rozmnażania się jeleni
+    szansa_upolowania(Float): szansa na upolowanie jelenia przez wilka
+    szansa(Float): procentowa szansa na wystąpienie kataklizmu w jednostce czasu
+    pojemność_środowiskowa(Float): maksymalna ilość jeleni w środowisku
+    narodziny_wilków(Float): tempo rozmnażania się wilków
+    wsp_umier_wilków(Float): tempo umieralności wilków
+    """
+    global J
+    global W
+    J = stan_początkowy(20.0)
+    W = stan_początkowy(20.0)  
+    czas_kataklizmu = 0 
+    for i in 2:24999 
+        if czas_kataklizmu > 0
+            czas_kataklizmu -= 1
+            aktualne_narodziny_jeleni = narodziny_jeleni/10
+            aktualny_wsp_umier_wilków = 1.8*wsp_umier_wilków
+        else
+            aktualne_narodziny_jeleni = narodziny_jeleni
+            aktualny_wsp_umier_wilków = wsp_umier_wilków
+        end          
+        
+        J[i] = J[i-1] + ((J[i-1]*aktualne_narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - aktualny_wsp_umier_wilków*W[i-1])*0.002
+        
+        if kataklizm(szansa) == "susza"
+            czas_kataklizmu = 50
+        end
+    end
+end
+
+function zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania, X = 1, szansa = 0.1, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
+    """
+    Funkcja modyfikuje "losowo" kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    populacji jeleni oraz wilków.
+
+    Argumenty
+    ---------
+    narodziny_jeleni(Float): tempo rozmnażania się jeleni
+    szansa_upolowania(Float): szansa na upolowanie jelenia przez wilka
+    X(Float): współczynnik losowości zmiany (powinien być większy od 1, a im większy, tym losowość mniejsza)
+    szansa(Float): procentowa szansa na wystąpienie kataklizmu w jednostce czasu
+    pojemność_środowiskowa(Float): maksymalna ilość jeleni w środowisku
+    narodziny_wilków(Float): tempo rozmnażania się wilków
+    wsp_umier_wilków(Float): tempo umieralności wilków
+    """
+    global J
+    global W
+    J = stan_początkowy(20.0)
+    W = stan_początkowy(20.0)  
+    czas_kataklizmu = 0 
+    for i in 2:24999 
+        if czas_kataklizmu > 0
+            czas_kataklizmu -= 1
+            los_narodziny_jeleni = 0
+            los_wsp_umier_wilków = 1
+        else
+            los_narodziny_jeleni = losowa_zmiana_parametru(narodziny_jeleni, X)
+            los_wsp_umier_wilków = losowa_zmiana_parametru(wsp_umier_wilków, X)
+        end
+        los_szansa_upolowania = losowa_zmiana_parametru(szansa_upolowania, X)
+        los_narodziny_wilków = losowa_zmiana_parametru(narodziny_wilków, X)
+          
+        
+        J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+        
+        if kataklizm(szansa) == "susza"
+            czas_kataklizmu = 50
+        end
+    end
+end
+
+function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kataklizm = false) # Przykładowo: wykres(0.9, 0.05)
     """
     Funckja rysuje wykres pokazujący zależność między ilością jeleni a ilością wilków,
     w zależności od zadanych parametrów.
@@ -96,10 +226,24 @@ function wykres(narodziny_jeleni, szansa_upolowania) # Przykładowo: wykres(0.9,
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
     szansa_upolowania(Float): szansa na upolowanie jelenia przez wilka
+    czy_losowe(Bool): określa czy wykres ma zawierać element losowy
+    czy_kataklizm(Bool): określa czy wykres ma uwzględniać kataklizmy
     """
-    J = stan_początkowy_jeleni(20.0)
-    W = stan_początkowy_wilków(10.0)
-    zmiana(narodziny_jeleni, szansa_upolowania)
+    global J
+    global W
+    J = stan_początkowy(20.0)
+    W = stan_początkowy(20.0)
+    if czy_losowe && czy_kataklizm
+        zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania)
+    elseif czy_losowe
+        zmiana_losowa(narodziny_jeleni, szansa_upolowania)
+    elseif czy_kataklizm
+        zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania)
+    else
+        zmiana(narodziny_jeleni, szansa_upolowania)
+    end
     plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
     plot!(W, label = "ilość wilków")
 end
+
+        
