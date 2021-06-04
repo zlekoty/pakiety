@@ -217,6 +217,8 @@ function zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania, X = 1
     end
 end
 
+# Wykres
+
 function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kataklizm = false) # Przykładowo: wykres(0.9, 0.05)
     """
     Funckja rysuje wykres pokazujący zależność między ilością jeleni a ilością wilków,
@@ -244,4 +246,69 @@ function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kat
     end
     plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
     plot!(W, label = "ilość wilków")
+end
+
+# Symulacja z uwzględnieniem cztereh gatunków
+
+J1 = stan_początkowy(20)
+J2 = stan_początkowy(20)
+W1 = stan_początkowy(20)
+W2 = stan_początkowy(20)
+
+function zmiana_4gatunki(narodziny_jeleni_1 = 1.1, narodziny_jeleni_2 = 0.9, szansa_upolowania_1 = 0.055, szansa_upolowania_2 = 0.05, narodziny_wilków = 0.5, wsp_umier_wilków_1 = 0.5, wsp_umier_wilków_2 = 0.55, pojemność_wilków = 150, pojemność_jeleni = 400)
+    """
+    Funkcja modyfikuje kolejne elementy macierzy J1, J2, W1 i W2 tak, aby reprezentowały zmieniającą się liczbę osobników
+    populacji jeleni 1, jeleni 2, wilków 1 oraz wilków 2 w czasie.
+
+    Argumenty
+    ---------
+    narodziny_jeleni_1/2(Float): tempo rozmnażania się jeleni 1/2
+    szansa_upolowania_1/2(Float): szansa na upolowanie jelenia przez wilka 1/2
+    pojemność_jeleni/wilków(Float): maksymalna ilość jeleni/wilków w środowisku
+    narodziny_wilków(Float): tempo rozmnażania się wilków
+    wsp_umier_wilków_1/2(Float): tempo umieralności wilków 1/2
+    """
+    global J1, J2, W1, W2
+
+    J1 = stan_początkowy(30)
+    J2 = stan_początkowy(30)
+    W1 = stan_początkowy(10)
+    W2 = stan_początkowy(10)
+
+    for i in 2:24999
+        polowanie = rand(0:2)
+
+        if J1[i-1] == 0 || polowanie == 2 # Wilki polują tylko na jelenie 2.
+            W1[i] = W1[i-1] + ((1 - W1[i-1]/pojemność_wilków)*(szansa_upolowania_1*narodziny_wilków*J2[i-1]*W1[i-1]) - wsp_umier_wilków_1*W1[i-1])*0.002
+            W2[i] = W2[i-1] + ((1 - W2[i-1]/pojemność_wilków)*(szansa_upolowania_2*narodziny_wilków*J2[i-1]*W2[i-1]) - wsp_umier_wilków_2*W2[i-1])*0.002
+            J1[i] = J1[i-1] + (1- J1[i-1]/pojemność_jeleni)*(J1[i-1]*narodziny_jeleni_1)*0.002
+            J2[i] = J2[i-1] + ((1- J2[i-1]/pojemność_jeleni)*(J2[i-1]*narodziny_jeleni_2) - (szansa_upolowania_1*W1[i-1]*J2[i-1]) - (szansa_upolowania_2*W2[i-1]*J2[i-1]))*0.002
+            
+        elseif J2[i-1] == 0 || polowanie == 1 # Wilki polują tylko na jelenie 1.
+            W1[i] = W1[i-1] + ((1 - W1[i-1]/pojemność_wilków)*(szansa_upolowania_1*narodziny_wilków*J1[i-1]*W1[i-1]) - wsp_umier_wilków_1*W1[i-1])*0.002
+            W2[i] = W2[i-1] + ((1 - W2[i-1]/pojemność_wilków)*(szansa_upolowania_2*narodziny_wilków*J1[i-1]*W2[i-1]) - wsp_umier_wilków_2*W2[i-1])*0.002
+            J1[i] = J1[i-1] + ((1- J1[i-1]/pojemność_jeleni)*(J1[i-1]*narodziny_jeleni_1) - (szansa_upolowania_1*W1[i-1]*J1[i-1]) - (szansa_upolowania_2*W2[i-1]*J1[i-1]))*0.002
+            J2[i] = J2[i-1] + (1- J2[i-1]/pojemność_jeleni)*(J2[i-1]*narodziny_jeleni_2)*0.002
+
+        else # Wilki 1 polują na jelenie 2, wilki 2 na jelenie 1.
+            W1[i] = W1[i-1] + ((1 - W1[i-1]/pojemność_wilków)*(szansa_upolowania_1*narodziny_wilków*J2[i-1]*W1[i-1]) - wsp_umier_wilków_1*W1[i-1])*0.002
+            W2[i] = W2[i-1] + ((1 - W2[i-1]/pojemność_wilków)*(szansa_upolowania_2*narodziny_wilków*J1[i-1]*W2[i-1]) - wsp_umier_wilków_2*W2[i-1])*0.002
+            J1[i] = J1[i-1] + ((1- J1[i-1]/pojemność_jeleni)*(J1[i-1]*narodziny_jeleni_1) - (szansa_upolowania_2*W2[i-1]*J1[i-1]))*0.002
+            J2[i] = J2[i-1] + ((1- J2[i-1]/pojemność_jeleni)*(J2[i-1]*narodziny_jeleni_2) - (szansa_upolowania_1*W1[i-1]*J2[i-1]))*0.002
+        end
+    end
+end
+
+function wykres_4gatunki(narodziny_jeleni_1 = 1.1, narodziny_jeleni_2 = 0.9, szansa_upolowania_1 = 0.055, szansa_upolowania_2 = 0.05, narodziny_wilków = 0.5, wsp_umier_wilków_1 = 0.5, wsp_umier_wilków_2 = 0.55, pojemność_wilków = 150, pojemność_jeleni = 400)
+    global J1, J2, W1, W2
+    J1 = stan_początkowy(30)
+    J2 = stan_początkowy(30)
+    W1 = stan_początkowy(10)
+    W2 = stan_początkowy(10)
+
+    zmiana_4gatunki(narodziny_jeleni_1, narodziny_jeleni_2, szansa_upolowania_1, szansa_upolowania_2, narodziny_wilków, wsp_umier_wilków_1, wsp_umier_wilków_2, pojemność_wilków, pojemność_jeleni)
+    plot(J1, label="ilość jeleni 1", ylabel= "liczba osobników", xlabel = "czas")
+    plot!(J2, label="ilość jeleni 2")
+    plot!(W1, label="ilość wilków 1")
+    plot!(W2, label="ilość wilków 2")
 end
