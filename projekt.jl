@@ -36,8 +36,16 @@ function zmiana(narodziny_jeleni, szansa_upolowania, pojemność_środowiskowa =
     global J
     global W 
     for i in 2:24999 
-        J[i] = J[i-1] + ((J[i-1]*narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
-        W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - wsp_umier_wilków*W[i-1])*0.002
+        if J[i-1] < 0.01
+            J[i] = 0
+        else
+            J[i] = J[i-1] + ((J[i-1]*narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        end
+        if W[i-1] < 0.01
+            W[i] = 0
+        else
+            W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - wsp_umier_wilków*W[i-1])*0.002
+        end           
     end
 end
 
@@ -52,7 +60,7 @@ function anim_narodziny_jeleni()
         J = stan_początkowy(20.0)
         W = stan_początkowy(20.0)
         zmiana(k/250, 0.05)
-        plot(J, title = "Wykres w zależności od współczynnika narodzin jeleni", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot(J, title = "Współczynnik narodzin jeleni: "*string(k/250), label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków")   
     end
     gif(an, fps = 10)
@@ -65,11 +73,11 @@ function anim_szansa_upolowania()
     """
     global J
     global W
-    an = @animate for k in 1:500 # k/1000 jest szansą upolowania jelenia przez wilka
+    an = @animate for k in 1:500 # k/2000 jest szansą upolowania jelenia przez wilka
         J = stan_początkowy(20.0)
         W = stan_początkowy(20.0)
         zmiana(0.9, k/1000)
-        plot(J, title = "Wykres w zależności od szansy upolowania", label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot(J, title = "Szansa upolowania: "*string(k/2000), label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
         
     end
@@ -109,13 +117,23 @@ function zmiana_losowa(narodziny_jeleni, szansa_upolowania, X = 1, pojemność_�
     global W
     J = stan_początkowy(20.0)
     W = stan_początkowy(20.0)   
-    for i in 2:24999  
-        los_narodziny_jeleni = losowa_zmiana_parametru(narodziny_jeleni, X)
+    for i in 2:24999
         los_szansa_upolowania = losowa_zmiana_parametru(szansa_upolowania, X)
-        los_narodziny_wilków = losowa_zmiana_parametru(narodziny_wilków, X)
-        los_wsp_umier_wilków = losowa_zmiana_parametru(wsp_umier_wilków, X)  
-        J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
-        W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+
+        if J[i-1] < 0.1
+            J[i] = 0
+        else
+            los_narodziny_jeleni = losowa_zmiana_parametru(narodziny_jeleni, X)  
+            J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        end
+
+        if W[i-1] < 0.1
+            W[i] = 0
+        else
+            los_narodziny_wilków = losowa_zmiana_parametru(narodziny_wilków, X)
+            los_wsp_umier_wilków = losowa_zmiana_parametru(wsp_umier_wilków, X)  
+            W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+        end                    
     end
 end
 
@@ -164,10 +182,18 @@ function zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania, szansa = 0.1
         else
             aktualne_narodziny_jeleni = narodziny_jeleni
             aktualny_wsp_umier_wilków = wsp_umier_wilków
-        end          
+        end  
         
-        J[i] = J[i-1] + ((J[i-1]*aktualne_narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
-        W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - aktualny_wsp_umier_wilków*W[i-1])*0.002
+        if J[i-1] < 0.1
+            J[i] = 0
+        else
+            J[i] = J[i-1] + ((J[i-1]*aktualne_narodziny_jeleni)-(szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
+        end
+        if W[i-1] < 0.1
+            W[i] = 0
+        else
+            W[i] = W[i-1] + ((szansa_upolowania*narodziny_wilków*J[i-1]*W[i-1]) - aktualny_wsp_umier_wilków*W[i-1])*0.002
+        end  
         
         if kataklizm(szansa) == "susza"
             czas_kataklizmu = 50
@@ -206,10 +232,18 @@ function zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania, X = 1
         end
         los_szansa_upolowania = losowa_zmiana_parametru(szansa_upolowania, X)
         los_narodziny_wilków = losowa_zmiana_parametru(narodziny_wilków, X)
-          
-        
-        J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002
-        W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+         
+        if J[i-1] < 0.1
+            J[i] = 0
+        else
+            J[i] = J[i-1] + ((J[i-1]*los_narodziny_jeleni)-(los_szansa_upolowania*W[i-1]*J[i-1]))*(1-J[i-1]/pojemność_środowiskowa)*0.002        
+        end
+
+        if W[i-1] < 0.1
+            W[i] = 0
+        else
+            W[i] = W[i-1] + ((los_szansa_upolowania*los_narodziny_wilków*J[i-1]*W[i-1]) - los_wsp_umier_wilków*W[i-1])*0.002
+        end
         
         if kataklizm(szansa) == "susza"
             czas_kataklizmu = 50
