@@ -5,6 +5,7 @@ function stan_początkowy(ilość_pocz)
     """
     Funkcja tworzy macierz, której pierwszym elementem jest początkowa populacja zwierząt,
     a kolejnymi zera. Kolejne elementy będą reprezentować populację w danym czasie.
+
     Argumenty
     ---------
     ilość_pocz(Float): początkowa populacja zwierząt
@@ -23,6 +24,7 @@ function zmiana(narodziny_jeleni, szansa_upolowania, pojemność_środowiskowa =
     """
     Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni oraz wilków.
+
     Argumenty
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
@@ -101,6 +103,7 @@ function zmiana_losowa(narodziny_jeleni, szansa_upolowania, X = 1, pojemność_�
     """
     Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni oraz wilków.
+
     Argumenty
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
@@ -139,6 +142,7 @@ end
 function kataklizm(szansa)
     """
     Funkcja zwraca "susza", jeśli kataklizm nastąpił lub "false", jeśli nie nastąpił.
+
     Argumenty
     ---------
     szansa(Float): procentowa szansa na wystąpienie kataklizmu
@@ -155,6 +159,7 @@ function zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania, szansa = 0.1
     """
     Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 50 jednostek czasu.
+
     Argumenty
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
@@ -200,6 +205,7 @@ function zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania, X = 1
     """
     Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni oraz wilków. Jeśli w danym czasie nastąpi kataklizm, współczynniki zmieniają się na 50 jednostek czasu.
+
     Argumenty
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
@@ -249,8 +255,9 @@ end
 
 function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kataklizm = false) # Przykładowo: wykres(0.9, 0.05)
     """
-    Funckja rysuje wykres pokazujący zależność między ilością jeleni a ilością wilków,
+    Funkcja rysuje wykres pokazujący zależność między ilością jeleni a ilością wilków,
     w zależności od zadanych parametrów.
+
     Argumenty
     ---------
     narodziny_jeleni(Float): tempo rozmnażania się jeleni
@@ -275,6 +282,38 @@ function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kat
     plot!(W, label = "ilość wilków")
 end
 
+function anim_wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kataklizm = false)
+    """
+    Funkcja tworzy animację pokazującą zależność między ilością jeleni a ilością wilków,
+    w zależności od zadanych parametrów.
+
+    Argumenty
+    ---------
+    narodziny_jeleni(Float): tempo rozmnażania się jeleni
+    szansa_upolowania(Float): szansa na upolowanie jelenia przez wilka
+    czy_losowe(Bool): określa czy wykres ma zawierać element losowy
+    czy_kataklizm(Bool): określa czy wykres ma uwzględniać kataklizmy
+    """
+    global J
+    global W
+    J = stan_początkowy(20.0)
+    W = stan_początkowy(20.0)
+    if czy_losowe && czy_kataklizm
+        zmiana_losowa_z_kataklizmami(narodziny_jeleni, szansa_upolowania)
+    elseif czy_losowe
+        zmiana_losowa(narodziny_jeleni, szansa_upolowania)
+    elseif czy_kataklizm
+        zmiana_z_kataklizmami(narodziny_jeleni, szansa_upolowania)
+    else
+        zmiana(narodziny_jeleni, szansa_upolowania)
+    end
+    an = @animate for k in 100:100:24999 
+        plot(J[1:k], label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot!(W[1:k], label = "ilość wilków")      
+    end
+    gif(an, fps = 10)
+end
+
 # Symulacja z uwzględnieniem cztereh gatunków
 
 J1 = stan_początkowy(20)
@@ -286,6 +325,7 @@ function zmiana_4gatunki(narodziny_jeleni_1 = 1.1, narodziny_jeleni_2 = 0.9, sza
     """
     Funkcja modyfikuje kolejne elementy macierzy J1, J2, W1 i W2 tak, aby reprezentowały zmieniającą się liczbę osobników
     populacji jeleni 1, jeleni 2, wilków 1 oraz wilków 2 w czasie.
+
     Argumenty
     ---------
     narodziny_jeleni_1/2(Float): tempo rozmnażania się jeleni 1/2
