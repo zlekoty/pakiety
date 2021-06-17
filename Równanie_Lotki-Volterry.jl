@@ -22,7 +22,7 @@ W = stan_początkowy(20.0) #macierz wilków
 
 function zmiana(narodziny_jeleni, szansa_upolowania, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
-    Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    Funkcja modyfikuje kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się ilość osobników
     populacji jeleni oraz wilków.
 
     Argumenty
@@ -60,7 +60,7 @@ function anim_narodziny_jeleni()
         J = stan_początkowy(20.0)
         W = stan_początkowy(20.0)
         zmiana(k/250, 0.05)
-        plot(J, title = "Współczynnik narodzin jeleni: "*string(k/250), label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot(J, title = "Współczynnik narodzin jeleni: "*string(k/250), label = "ilość jeleni", ylabel = "ilość osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków")   
     end
     gif(an, fps = 10)
@@ -69,7 +69,7 @@ end
 function anim_szansa_upolowania()
     """
     Funkcja tworzy animację zmieniających się populcji w zależności od szansy upolowania jelenia przez wilka.
-    Oscyluje on między wartością 0.001 a 0.5.
+    Oscyluje on między wartością 0.0005 a 0.25.
     """
     global J
     global W
@@ -77,7 +77,7 @@ function anim_szansa_upolowania()
         J = stan_początkowy(20.0)
         W = stan_początkowy(20.0)
         zmiana(0.9, k/1000)
-        plot(J, title = "Szansa upolowania: "*string(k/2000), label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot(J, title = "Szansa upolowania: "*string(k/2000), label = "ilość jeleni", ylabel = "ilość osobników", xlabel = "czas")
         plot!(W, label = "ilość wilków") 
         
     end
@@ -101,7 +101,7 @@ end
 
 function zmiana_losowa(narodziny_jeleni, szansa_upolowania, X = 3, pojemność_środowiskowa = 500, narodziny_wilków = 0.5, wsp_umier_wilków = 0.6)
     """
-    Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się liczbę osobników
+    Funkcja modyfikuje w sposób losowy kolejne elementy macierzy J i W tak, aby reprezentowały zmieniającą się ilość osobników
     populacji jeleni oraz wilków.
 
     Argumenty
@@ -280,7 +280,7 @@ function wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, czy_kat
     else
         zmiana(narodziny_jeleni, szansa_upolowania)
     end
-    plot(J, label="ilość jeleni", ylabel= "liczba osobników", xlabel = "czas")
+    plot(J, label="ilość jeleni", ylabel= "ilość osobników", xlabel = "czas")
     plot!(W, label = "ilość wilków")
 end
 
@@ -310,7 +310,7 @@ function anim_wykres(narodziny_jeleni, szansa_upolowania, czy_losowe = false, cz
         zmiana(narodziny_jeleni, szansa_upolowania)
     end
     an = @animate for k in 100:100:24999 
-        plot(J[1:k], label = "ilość jeleni", ylabel = "liczba osobników", xlabel = "czas")
+        plot(J[1:k], label = "ilość jeleni", ylabel = "ilość osobników", xlabel = "czas")
         plot!(W[1:k], label = "ilość wilków")      
     end
     gif(an, fps = 10)
@@ -375,7 +375,7 @@ function wykres_4gatunki(narodziny_jeleni_1 = 1.1, narodziny_jeleni_2 = 0.9, sza
     W2 = stan_początkowy(10)
 
     zmiana_4gatunki(narodziny_jeleni_1, narodziny_jeleni_2, szansa_upolowania_1, szansa_upolowania_2, narodziny_wilków, wsp_umier_wilków_1, wsp_umier_wilków_2, pojemność_wilków, pojemność_jeleni)
-    plot(J1, label="ilość jeleni 1", ylabel= "liczba osobników", xlabel = "czas")
+    plot(J1, label="ilość jeleni 1", ylabel= "ilość osobników", xlabel = "czas")
     plot!(J2, label="ilość jeleni 2")
     plot!(W1, label="ilość wilków 1")
     plot!(W2, label="ilość wilków 2")
